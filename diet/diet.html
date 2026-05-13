@@ -1,0 +1,2159 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nil — 8 Week Cut Protocol</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --accent: #e8ff00;
+    --accent2: #ff4d00;
+    --text: #f0f0f0;
+    --muted: #666;
+    --protein: #4ade80;
+    --fat: #facc15;
+    --carb: #60a5fa;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘DM Sans’, sans-serif;
+font-weight: 300;
+min-height: 100vh;
+}
+
+.grain {
+position: fixed; inset: 0; pointer-events: none; z-index: 100;
+opacity: 0.03;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘noise’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23noise)’/%3E%3C/svg%3E”);
+}
+
+header {
+padding: 48px 40px 32px;
+border-bottom: 1px solid var(–border);
+display: flex;
+justify-content: space-between;
+align-items: flex-end;
+position: relative;
+overflow: hidden;
+}
+
+header::before {
+content: ‘’;
+position: absolute;
+top: -80px; right: -80px;
+width: 300px; height: 300px;
+background: radial-gradient(circle, rgba(232,255,0,0.06) 0%, transparent 70%);
+pointer-events: none;
+}
+
+.header-left h1 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(48px, 8vw, 96px);
+line-height: 0.9;
+letter-spacing: 2px;
+color: var(–text);
+}
+
+.header-left h1 span { color: var(–accent); }
+
+.header-left p {
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+color: var(–muted);
+letter-spacing: 3px;
+text-transform: uppercase;
+margin-top: 12px;
+}
+
+.stats-strip {
+display: flex;
+gap: 32px;
+align-items: flex-end;
+}
+
+.stat {
+text-align: right;
+}
+
+.stat .val {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 32px;
+color: var(–accent);
+line-height: 1;
+}
+
+.stat .label {
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+color: var(–muted);
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-top: 2px;
+}
+
+nav {
+display: flex;
+gap: 0;
+border-bottom: 1px solid var(–border);
+padding: 0 40px;
+overflow-x: auto;
+}
+
+nav button {
+background: none;
+border: none;
+color: var(–muted);
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+letter-spacing: 2px;
+text-transform: uppercase;
+padding: 16px 24px;
+cursor: pointer;
+border-bottom: 2px solid transparent;
+white-space: nowrap;
+transition: all 0.2s;
+}
+
+nav button.active {
+color: var(–accent);
+border-bottom-color: var(–accent);
+}
+
+nav button:hover:not(.active) { color: var(–text); }
+
+.content { padding: 40px; max-width: 1200px; }
+
+.section { display: none; }
+.section.active { display: block; }
+
+/* TARGETS */
+.targets-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 2px;
+margin-bottom: 40px;
+}
+
+.target-card {
+background: var(–surface);
+padding: 28px 24px;
+position: relative;
+overflow: hidden;
+}
+
+.target-card::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 2px;
+}
+
+.target-card.calories::before { background: var(–accent2); }
+.target-card.protein::before { background: var(–protein); }
+.target-card.fat::before { background: var(–fat); }
+.target-card.carbs::before { background: var(–carb); }
+
+.target-card .num {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 52px;
+line-height: 1;
+}
+
+.target-card.calories .num { color: var(–accent2); }
+.target-card.protein .num { color: var(–protein); }
+.target-card.fat .num { color: var(–fat); }
+.target-card.carbs .num { color: var(–carb); }
+
+.target-card .unit {
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+color: var(–muted);
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-bottom: 4px;
+}
+
+.target-card .desc {
+font-size: 12px;
+color: var(–muted);
+margin-top: 8px;
+line-height: 1.5;
+}
+
+/* WEEKS */
+.weeks-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 2px;
+margin-bottom: 40px;
+}
+
+.week-card {
+background: var(–surface);
+padding: 20px;
+cursor: pointer;
+transition: background 0.2s;
+position: relative;
+}
+
+.week-card:hover { background: var(–surface2); }
+.week-card.active-week { background: var(–surface2); }
+.week-card.active-week::after {
+content: ‘’;
+position: absolute;
+bottom: 0; left: 0; right: 0;
+height: 2px;
+background: var(–accent);
+}
+
+.week-card .wnum {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 36px;
+color: var(–accent);
+line-height: 1;
+}
+
+.week-card .wtarget {
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+color: var(–muted);
+letter-spacing: 1px;
+margin-top: 4px;
+}
+
+.week-card .wfocus {
+font-size: 11px;
+color: var(–text);
+margin-top: 8px;
+line-height: 1.4;
+}
+
+.week-card.watercut { background: rgba(255,77,0,0.08); }
+.week-card.watercut .wnum { color: var(–accent2); }
+
+/* MEAL DETAIL */
+.meal-detail {
+display: none;
+margin-top: 2px;
+}
+
+.meal-detail.visible { display: block; }
+
+.meal-detail-inner {
+background: var(–surface);
+padding: 32px;
+}
+
+.week-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 28px;
+color: var(–accent);
+margin-bottom: 24px;
+}
+
+.day-tabs {
+display: flex;
+gap: 2px;
+margin-bottom: 24px;
+flex-wrap: wrap;
+}
+
+.day-tab {
+background: var(–surface2);
+border: none;
+color: var(–muted);
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+letter-spacing: 1px;
+padding: 8px 14px;
+cursor: pointer;
+text-transform: uppercase;
+transition: all 0.2s;
+}
+
+.day-tab.active { background: var(–accent); color: #000; }
+.day-tab:hover:not(.active) { color: var(–text); }
+
+.day-content { display: none; }
+.day-content.active { display: block; }
+
+.meals-row {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 2px;
+margin-bottom: 16px;
+}
+
+.meal-card {
+background: var(–bg);
+padding: 20px;
+}
+
+.meal-card .meal-time {
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+color: var(–muted);
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-bottom: 8px;
+}
+
+.meal-card .meal-name {
+font-size: 14px;
+font-weight: 500;
+color: var(–text);
+margin-bottom: 12px;
+line-height: 1.4;
+}
+
+.meal-card .meal-items {
+font-size: 12px;
+color: var(–muted);
+line-height: 1.8;
+}
+
+.meal-card .meal-macros {
+display: flex;
+gap: 12px;
+margin-top: 12px;
+padding-top: 12px;
+border-top: 1px solid var(–border);
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+}
+
+.meal-card .meal-macros .kcal { color: var(–accent2); }
+.meal-card .meal-macros .prot { color: var(–protein); }
+
+.day-totals {
+display: flex;
+gap: 24px;
+padding: 16px 20px;
+background: var(–bg);
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+border-left: 2px solid var(–accent);
+}
+
+.day-totals span { color: var(–muted); }
+.day-totals .val { color: var(–text); font-weight: 500; }
+
+/* TRAINING */
+.training-grid {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 2px;
+margin-bottom: 32px;
+}
+
+.training-day {
+background: var(–surface);
+padding: 16px 12px;
+}
+
+.training-day .day-name {
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+color: var(–muted);
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-bottom: 12px;
+}
+
+.session {
+padding: 6px 8px;
+margin-bottom: 4px;
+font-size: 11px;
+font-weight: 500;
+border-radius: 0;
+}
+
+.session.bjj { background: rgba(232,255,0,0.1); color: var(–accent); }
+.session.weights { background: rgba(74,222,128,0.1); color: var(–protein); }
+.session.treadmill { background: rgba(255,77,0,0.1); color: var(–accent2); }
+.session.treadmill.mandatory {
+border-left: 2px solid var(–accent2);
+}
+
+.session .session-detail {
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+color: var(–muted);
+margin-top: 2px;
+}
+
+.treadmill-rule {
+background: rgba(255,77,0,0.06);
+border: 1px solid rgba(255,77,0,0.2);
+padding: 20px 24px;
+margin-bottom: 24px;
+display: flex;
+align-items: center;
+gap: 16px;
+}
+
+.treadmill-rule .icon {
+font-size: 28px;
+flex-shrink: 0;
+}
+
+.treadmill-rule .rule-text {
+font-family: ‘DM Mono’, monospace;
+font-size: 12px;
+color: var(–accent2);
+letter-spacing: 1px;
+line-height: 1.6;
+}
+
+.treadmill-rule .rule-text strong {
+color: var(–text);
+display: block;
+font-size: 14px;
+margin-bottom: 4px;
+}
+
+/* WATERCUT */
+.watercut-timeline {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 2px;
+margin-bottom: 32px;
+}
+
+.wc-day {
+background: var(–surface);
+padding: 16px;
+}
+
+.wc-day .wc-label {
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+color: var(–muted);
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-bottom: 8px;
+}
+
+.wc-day .wc-water {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 28px;
+line-height: 1;
+}
+
+.wc-day .wc-unit {
+font-size: 10px;
+color: var(–muted);
+margin-bottom: 8px;
+}
+
+.wc-day .wc-notes {
+font-size: 11px;
+color: var(–muted);
+line-height: 1.5;
+}
+
+.wc-day.danger .wc-water { color: var(–accent2); }
+.wc-day.warning .wc-water { color: var(–fat); }
+.wc-day.safe .wc-water { color: var(–carb); }
+
+/* RULES */
+.rules-list {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 2px;
+}
+
+.rule-item {
+background: var(–surface);
+padding: 20px 24px;
+display: flex;
+gap: 16px;
+align-items: flex-start;
+}
+
+.rule-item .rule-num {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 32px;
+color: var(–accent);
+line-height: 1;
+flex-shrink: 0;
+width: 40px;
+}
+
+.rule-item .rule-title {
+font-size: 13px;
+font-weight: 500;
+color: var(–text);
+margin-bottom: 4px;
+}
+
+.rule-item .rule-desc {
+font-size: 12px;
+color: var(–muted);
+line-height: 1.5;
+}
+
+.section-label {
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+color: var(–muted);
+letter-spacing: 3px;
+text-transform: uppercase;
+margin-bottom: 16px;
+}
+
+.phase-badge {
+display: inline-block;
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+letter-spacing: 2px;
+text-transform: uppercase;
+padding: 3px 8px;
+margin-bottom: 24px;
+}
+
+.phase-badge.cut { background: rgba(232,255,0,0.1); color: var(–accent); }
+.phase-badge.watercut-badge { background: rgba(255,77,0,0.15); color: var(–accent2); }
+
+.divider {
+height: 1px;
+background: var(–border);
+margin: 32px 0;
+}
+
+/* DAILY MENU */
+.menu-selector {
+display: flex;
+gap: 2px;
+margin-bottom: 24px;
+flex-wrap: wrap;
+}
+
+.menu-day-btn {
+background: var(–surface);
+border: none;
+color: var(–muted);
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+letter-spacing: 2px;
+text-transform: uppercase;
+padding: 12px 20px;
+cursor: pointer;
+transition: all 0.2s;
+border-bottom: 2px solid transparent;
+}
+
+.menu-day-btn.active { background: var(–surface2); color: var(–accent); border-bottom-color: var(–accent); }
+.menu-day-btn:hover:not(.active) { color: var(–text); background: var(–surface2); }
+
+.menu-day { display: none; }
+.menu-day.active { display: block; }
+
+.menu-timeline {
+display: flex;
+flex-direction: column;
+gap: 2px;
+position: relative;
+}
+
+.menu-row {
+display: grid;
+grid-template-columns: 120px 1fr 200px;
+gap: 2px;
+align-items: stretch;
+}
+
+.menu-time-col {
+background: var(–surface);
+padding: 20px 16px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+}
+
+.menu-time-col .time-val {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 22px;
+color: var(–accent);
+line-height: 1;
+}
+
+.menu-time-col .time-label {
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+color: var(–muted);
+letter-spacing: 1px;
+text-transform: uppercase;
+margin-top: 4px;
+}
+
+.menu-food-col {
+background: var(–surface);
+padding: 20px 24px;
+}
+
+.menu-food-col .food-title {
+font-size: 15px;
+font-weight: 500;
+color: var(–text);
+margin-bottom: 8px;
+}
+
+.menu-food-col .food-items {
+font-size: 12px;
+color: var(–muted);
+line-height: 1.9;
+}
+
+.menu-food-col .food-prep {
+font-family: ‘DM Mono’, monospace;
+font-size: 10px;
+color: var(–accent);
+margin-top: 10px;
+letter-spacing: 1px;
+}
+
+.menu-macro-col {
+background: var(–surface);
+padding: 20px 16px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+gap: 8px;
+}
+
+.macro-pill {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 4px 0;
+border-bottom: 1px solid var(–border);
+}
+
+.macro-pill:last-child { border-bottom: none; }
+
+.macro-pill .macro-name {
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+color: var(–muted);
+letter-spacing: 1px;
+text-transform: uppercase;
+}
+
+.macro-pill .macro-val {
+font-family: ‘DM Mono’, monospace;
+font-size: 12px;
+font-weight: 500;
+}
+
+.macro-pill.kcal .macro-val { color: var(–accent2); }
+.macro-pill.prot .macro-val { color: var(–protein); }
+.macro-pill.fat-m .macro-val { color: var(–fat); }
+.macro-pill.carb-m .macro-val { color: var(–carb); }
+
+.menu-separator {
+padding: 8px 0;
+display: flex;
+align-items: center;
+gap: 12px;
+color: var(–muted);
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+letter-spacing: 2px;
+text-transform: uppercase;
+}
+
+.menu-separator::before, .menu-separator::after {
+content: ‘’;
+flex: 1;
+height: 1px;
+background: var(–border);
+}
+
+.menu-daily-total {
+background: var(–surface2);
+border-left: 3px solid var(–accent);
+padding: 20px 24px;
+margin-top: 2px;
+display: flex;
+gap: 32px;
+align-items: center;
+flex-wrap: wrap;
+}
+
+.menu-daily-total .total-label {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 18px;
+color: var(–accent);
+letter-spacing: 1px;
+}
+
+.menu-daily-total .total-item {
+display: flex;
+flex-direction: column;
+gap: 2px;
+}
+
+.menu-daily-total .total-item .t-val {
+font-family: ‘DM Mono’, monospace;
+font-size: 16px;
+font-weight: 500;
+color: var(–text);
+}
+
+.menu-daily-total .total-item .t-label {
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+color: var(–muted);
+letter-spacing: 1px;
+text-transform: uppercase;
+}
+
+.training-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-family: ‘DM Mono’, monospace;
+font-size: 9px;
+letter-spacing: 1px;
+text-transform: uppercase;
+padding: 4px 10px;
+margin-bottom: 16px;
+margin-right: 6px;
+}
+
+.training-badge.bjj-b { background: rgba(232,255,0,0.08); color: var(–accent); }
+.training-badge.weights-b { background: rgba(74,222,128,0.08); color: var(–protein); }
+.training-badge.treadmill-b { background: rgba(255,77,0,0.08); color: var(–accent2); }
+.training-badge.rest-b { background: rgba(255,255,255,0.04); color: var(–muted); }
+
+@media (max-width: 768px) {
+.menu-row { grid-template-columns: 80px 1fr; }
+.menu-macro-col { display: none; }
+}
+
+@media (max-width: 768px) {
+header { padding: 24px 20px; flex-direction: column; align-items: flex-start; gap: 20px; }
+nav { padding: 0 20px; }
+.content { padding: 24px 20px; }
+.targets-grid { grid-template-columns: repeat(2, 1fr); }
+.weeks-grid { grid-template-columns: repeat(2, 1fr); }
+.meals-row { grid-template-columns: 1fr; }
+.training-grid { grid-template-columns: repeat(4, 1fr); }
+.watercut-timeline { grid-template-columns: repeat(4, 1fr); }
+.rules-list { grid-template-columns: 1fr; }
+.stats-strip { gap: 16px; }
+}
+</style>
+
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <div class="header-left">
+    <h1>NIL<br><span>CUT PROTOCOL</span></h1>
+    <p>10 May → 5 July 2025 &nbsp;·&nbsp; 8 Weeks &nbsp;·&nbsp; 90kg → 77kg</p>
+  </div>
+  <div class="stats-strip">
+    <div class="stat">
+      <div class="val">1,500</div>
+      <div class="label">Daily kcal</div>
+    </div>
+    <div class="stat">
+      <div class="val">180g</div>
+      <div class="label">Protein</div>
+    </div>
+    <div class="stat">
+      <div class="val">45min</div>
+      <div class="label">Treadmill/day</div>
+    </div>
+    <div class="stat">
+      <div class="val">-13kg</div>
+      <div class="label">Total target</div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('targets')">Targets</button>
+  <button onclick="showSection('meals')">Meal Plan</button>
+  <button onclick="showSection('training')">Training</button>
+  <button onclick="showSection('watercut')">Watercut</button>
+  <button onclick="showSection('rules')">Rules</button>
+  <button onclick="showSection('dailymenu')">Daily Menu</button>
+</nav>
+
+<div class="content">
+
+  <!-- TARGETS -->
+
+  <div id="targets" class="section active">
+    <p class="section-label">Daily Nutrition Targets — All 8 Weeks</p>
+    <div class="targets-grid">
+      <div class="target-card calories">
+        <div class="unit">calories</div>
+        <div class="num">1500</div>
+        <div class="desc">~950 kcal deficit from TDEE. Aggressive but achievable. Do not go lower — it will cost you muscle.</div>
+      </div>
+      <div class="target-card protein">
+        <div class="unit">protein (g)</div>
+        <div class="num">180</div>
+        <div class="desc">2g per kg bodyweight. Non-negotiable. This is what keeps muscle on a hard cut.</div>
+      </div>
+      <div class="target-card fat">
+        <div class="unit">fat (g)</div>
+        <div class="num">70</div>
+        <div class="desc">Minimum for hormonal health. Below this and testosterone drops. Stay close to this number.</div>
+      </div>
+      <div class="target-card carbs">
+        <div class="unit">carbs (g)</div>
+        <div class="num">&lt;20</div>
+        <div class="desc">Near zero. Carnivore/paleo approach. Keeps insulin low and cravings suppressed — what works for you.</div>
+      </div>
+    </div>
+
+```
+<p class="section-label" style="margin-top:32px">Weekly Weight Targets</p>
+<div class="weeks-grid">
+  <div class="week-card">
+    <div class="wnum">W1</div>
+    <div class="wtarget">Target: 88.5 kg</div>
+    <div class="wfocus">Body adapts to deficit. Expect fast initial drop — mostly water.</div>
+  </div>
+  <div class="week-card">
+    <div class="wnum">W2</div>
+    <div class="wtarget">Target: 87 kg</div>
+    <div class="wfocus">Treadmill starts. Deficit compounds. Drop should continue.</div>
+  </div>
+  <div class="week-card">
+    <div class="wnum">W3</div>
+    <div class="wtarget">Target: 85.7 kg</div>
+    <div class="wfocus">Hunger peaks around here. Stay strict. This is where most people quit.</div>
+  </div>
+  <div class="week-card">
+    <div class="wnum">W4</div>
+    <div class="wtarget">Target: 84.5 kg</div>
+    <div class="wfocus">Midpoint check. Adjust calories if behind. Body is adapting.</div>
+  </div>
+  <div class="week-card">
+    <div class="wnum">W5</div>
+    <div class="wtarget">Target: 83 kg</div>
+    <div class="wfocus">You should look visibly leaner now. Stay consistent.</div>
+  </div>
+  <div class="week-card">
+    <div class="wnum">W6</div>
+    <div class="wtarget">Target: 82 kg</div>
+    <div class="wfocus">Final push. No cheat meals. Every day counts now.</div>
+  </div>
+  <div class="week-card">
+    <div class="wnum">W7</div>
+    <div class="wtarget">Target: 81 kg</div>
+    <div class="wfocus">Begin reducing sodium slightly. Prep body for watercut.</div>
+  </div>
+  <div class="week-card watercut">
+    <div class="wnum">W8</div>
+    <div class="wtarget">77 kg on 5 July</div>
+    <div class="wfocus">Watercut week. Sodium out. Water manipulation. Weigh-in ready.</div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- MEALS -->
+
+  <div id="meals" class="section">
+    <p class="section-label">8-Week Meal Rotation — Click a week to expand</p>
+    <span class="phase-badge cut">Phase: Cut — 1,500 kcal / 180g protein / &lt;20g carbs</span>
+
+```
+<div class="weeks-grid" id="meal-weeks">
+  <div class="week-card" onclick="toggleMealWeek(1)">
+    <div class="wnum">W1–2</div>
+    <div class="wtarget">Base Protocol</div>
+    <div class="wfocus">Establish the routine. Egg + Steak + Salmon pattern.</div>
+  </div>
+  <div class="week-card" onclick="toggleMealWeek(3)">
+    <div class="wnum">W3–4</div>
+    <div class="wtarget">Rotation A</div>
+    <div class="wfocus">Swap proteins. Add sardines, mince, chicken thigh.</div>
+  </div>
+  <div class="week-card" onclick="toggleMealWeek(5)">
+    <div class="wnum">W5–6</div>
+    <div class="wtarget">Rotation B</div>
+    <div class="wfocus">Tuna, lamb, turkey. Keep it from getting stale.</div>
+  </div>
+  <div class="week-card watercut" onclick="toggleMealWeek(7)">
+    <div class="wnum">W7–8</div>
+    <div class="wtarget">Watercut Prep</div>
+    <div class="wfocus">Drop sodium. Lean proteins only. No dairy final 3 days.</div>
+  </div>
+</div>
+
+<!-- WEEK 1-2 -->
+<div class="meal-detail" id="meal-week-1">
+  <div class="meal-detail-inner">
+    <div class="week-title">WEEKS 1–2 / BASE PROTOCOL</div>
+    <div class="day-tabs">
+      <button class="day-tab active" onclick="showDay('w1', 'mon')">Mon</button>
+      <button class="day-tab" onclick="showDay('w1', 'tue')">Tue</button>
+      <button class="day-tab" onclick="showDay('w1', 'wed')">Wed</button>
+      <button class="day-tab" onclick="showDay('w1', 'thu')">Thu</button>
+      <button class="day-tab" onclick="showDay('w1', 'fri')">Fri</button>
+      <button class="day-tab" onclick="showDay('w1', 'sat')">Sat</button>
+      <button class="day-tab" onclick="showDay('w1', 'sun')">Sun</button>
+    </div>
+    <div id="w1-mon" class="day-content active">
+      <div class="meals-row">
+        <div class="meal-card">
+          <div class="meal-time">Breakfast — Small</div>
+          <div class="meal-name">3 Scrambled Eggs + 2 Bacon Rashers</div>
+          <div class="meal-items">3 whole eggs<br>2 back bacon rashers<br>5g butter</div>
+          <div class="meal-macros"><span class="kcal">~300 kcal</span><span class="prot">30g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Lunch — Main</div>
+          <div class="meal-name">250g Sirloin + 2 Eggs + Greek Yoghurt</div>
+          <div class="meal-items">250g sirloin steak<br>2 fried eggs in 5g butter<br>200g Greek yoghurt (Total 5%)<br>Handful rocket/spinach</div>
+          <div class="meal-macros"><span class="kcal">~750 kcal</span><span class="prot">90g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Dinner — Small</div>
+          <div class="meal-name">200g Salmon + Steamed Broccoli</div>
+          <div class="meal-items">200g salmon fillet<br>150g steamed broccoli<br>5g olive oil<br>Salt, pepper, lemon</div>
+          <div class="meal-macros"><span class="kcal">~450 kcal</span><span class="prot">40g protein</span></div>
+        </div>
+      </div>
+      <div class="day-totals"><span>Total:</span> <span class="val">~1,500 kcal</span> <span>·</span> <span class="val">~160g P</span> <span>·</span> <span class="val">~70g F</span> <span>·</span> <span class="val">~8g C</span></div>
+    </div>
+    <div id="w1-tue" class="day-content">
+      <div class="meals-row">
+        <div class="meal-card">
+          <div class="meal-time">Breakfast — Small</div>
+          <div class="meal-name">3 Boiled Eggs + 2 Bacon Rashers</div>
+          <div class="meal-items">3 boiled eggs<br>2 bacon rashers<br>Black coffee</div>
+          <div class="meal-macros"><span class="kcal">~280 kcal</span><span class="prot">28g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Lunch — Main</div>
+          <div class="meal-name">300g Chicken Breast + 3 Eggs + Yoghurt</div>
+          <div class="meal-items">300g chicken breast (grilled)<br>3 whole eggs (scrambled)<br>200g Greek yoghurt<br>10g butter for eggs</div>
+          <div class="meal-macros"><span class="kcal">~720 kcal</span><span class="prot">95g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Dinner — Small</div>
+          <div class="meal-name">150g Tuna Steak + Courgette</div>
+          <div class="meal-items">150g tuna steak (pan-seared)<br>200g courgette (grilled)<br>5g olive oil<br>Salt, herbs</div>
+          <div class="meal-macros"><span class="kcal">~300 kcal</span><span class="prot">38g protein</span></div>
+        </div>
+      </div>
+      <div class="day-totals"><span>Total:</span> <span class="val">~1,300 kcal</span> <span>·</span> <span class="val">~161g P</span> <span>·</span> <span class="val">~55g F</span> <span>·</span> <span class="val">~12g C</span></div>
+    </div>
+    <div id="w1-wed" class="day-content">
+      <div class="meals-row">
+        <div class="meal-card">
+          <div class="meal-time">Breakfast — Small</div>
+          <div class="meal-name">4 Egg Omelette with Bacon</div>
+          <div class="meal-items">4 eggs<br>2 bacon rashers, chopped<br>5g butter<br>Salt, pepper</div>
+          <div class="meal-macros"><span class="kcal">~350 kcal</span><span class="prot">34g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Lunch — Main</div>
+          <div class="meal-name">250g Ribeye + Greek Yoghurt</div>
+          <div class="meal-items">250g ribeye (seared in own fat)<br>200g Greek yoghurt<br>Large handful spinach (raw)<br>Salt, black pepper</div>
+          <div class="meal-macros"><span class="kcal">~800 kcal</span><span class="prot">88g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Dinner — Small</div>
+          <div class="meal-name">200g Cod + Asparagus</div>
+          <div class="meal-items">200g cod fillet<br>150g asparagus<br>5g butter<br>Lemon juice</div>
+          <div class="meal-macros"><span class="kcal">~280 kcal</span><span class="prot">38g protein</span></div>
+        </div>
+      </div>
+      <div class="day-totals"><span>Total:</span> <span class="val">~1,430 kcal</span> <span>·</span> <span class="val">~160g P</span> <span>·</span> <span class="val">~72g F</span> <span>·</span> <span class="val">~14g C</span></div>
+    </div>
+    <div id="w1-thu" class="day-content">
+      <div class="meals-row">
+        <div class="meal-card">
+          <div class="meal-time">Breakfast — Small</div>
+          <div class="meal-name">3 Eggs + 100g Smoked Salmon</div>
+          <div class="meal-items">3 scrambled eggs<br>100g smoked salmon<br>5g butter<br>Black coffee</div>
+          <div class="meal-macros"><span class="kcal">~380 kcal</span><span class="prot">42g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Lunch — Main</div>
+          <div class="meal-name">300g Chicken Thighs + Yoghurt</div>
+          <div class="meal-items">300g chicken thighs (skin on, oven roasted)<br>200g Greek yoghurt<br>Rocket salad<br>Salt, paprika, garlic</div>
+          <div class="meal-macros"><span class="kcal">~700 kcal</span><span class="prot">85g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Dinner — Small</div>
+          <div class="meal-name">150g Salmon + Spinach</div>
+          <div class="meal-items">150g salmon<br>200g spinach (wilted)<br>5g butter<br>Garlic</div>
+          <div class="meal-macros"><span class="kcal">~350 kcal</span><span class="prot">35g protein</span></div>
+        </div>
+      </div>
+      <div class="day-totals"><span>Total:</span> <span class="val">~1,430 kcal</span> <span>·</span> <span class="val">~162g P</span> <span>·</span> <span class="val">~75g F</span> <span>·</span> <span class="val">~12g C</span></div>
+    </div>
+    <div id="w1-fri" class="day-content">
+      <div class="meals-row">
+        <div class="meal-card">
+          <div class="meal-time">Breakfast — Small</div>
+          <div class="meal-name">3 Scrambled Eggs + 2 Bacon</div>
+          <div class="meal-items">3 eggs scrambled<br>2 bacon rashers<br>5g butter</div>
+          <div class="meal-macros"><span class="kcal">~300 kcal</span><span class="prot">30g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Lunch — Main</div>
+          <div class="meal-name">250g Sirloin + 2 Eggs + Yoghurt</div>
+          <div class="meal-items">250g sirloin steak<br>2 fried eggs<br>200g Greek yoghurt<br>Spinach side</div>
+          <div class="meal-macros"><span class="kcal">~750 kcal</span><span class="prot">90g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Dinner — Small</div>
+          <div class="meal-name">200g Sea Bass + Broccoli</div>
+          <div class="meal-items">200g sea bass fillet<br>150g broccoli<br>5g olive oil<br>Lemon, salt</div>
+          <div class="meal-macros"><span class="kcal">~350 kcal</span><span class="prot">38g protein</span></div>
+        </div>
+      </div>
+      <div class="day-totals"><span>Total:</span> <span class="val">~1,400 kcal</span> <span>·</span> <span class="val">~158g P</span> <span>·</span> <span class="val">~68g F</span> <span>·</span> <span class="val">~10g C</span></div>
+    </div>
+    <div id="w1-sat" class="day-content">
+      <div class="meals-row">
+        <div class="meal-card">
+          <div class="meal-time">Breakfast — Small</div>
+          <div class="meal-name">4 Egg Omelette (Plain)</div>
+          <div class="meal-items">4 eggs<br>10g butter<br>Salt, pepper</div>
+          <div class="meal-macros"><span class="kcal">~320 kcal</span><span class="prot">28g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Lunch — Main</div>
+          <div class="meal-name">300g Ribeye + Yoghurt + Eggs</div>
+          <div class="meal-items">300g ribeye<br>2 boiled eggs<br>200g Greek yoghurt<br>Salt, rosemary</div>
+          <div class="meal-macros"><span class="kcal">~900 kcal</span><span class="prot">100g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Dinner — Small</div>
+          <div class="meal-name">150g Salmon + Courgette</div>
+          <div class="meal-items">150g salmon<br>200g courgette<br>5g olive oil</div>
+          <div class="meal-macros"><span class="kcal">~320 kcal</span><span class="prot">32g protein</span></div>
+        </div>
+      </div>
+      <div class="day-totals"><span>Total:</span> <span class="val">~1,540 kcal</span> <span>·</span> <span class="val">~160g P</span> <span>·</span> <span class="val">~82g F</span> <span>·</span> <span class="val">~12g C</span></div>
+    </div>
+    <div id="w1-sun" class="day-content">
+      <div class="meals-row">
+        <div class="meal-card">
+          <div class="meal-time">Breakfast — Small</div>
+          <div class="meal-name">3 Eggs + 100g Smoked Salmon</div>
+          <div class="meal-items">3 eggs (any style)<br>100g smoked salmon<br>5g butter</div>
+          <div class="meal-macros"><span class="kcal">~380 kcal</span><span class="prot">42g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Lunch — Main</div>
+          <div class="meal-name">250g Chicken Breast + 2 Eggs + Yoghurt</div>
+          <div class="meal-items">250g chicken breast<br>2 fried eggs<br>200g Greek yoghurt<br>Rocket</div>
+          <div class="meal-macros"><span class="kcal">~650 kcal</span><span class="prot">88g protein</span></div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">Dinner — Small</div>
+          <div class="meal-name">200g Tuna Steak + Asparagus</div>
+          <div class="meal-items">200g tuna steak<br>150g asparagus<br>5g olive oil<br>Lemon</div>
+          <div class="meal-macros"><span class="kcal">~380 kcal</span><span class="prot">42g protein</span></div>
+        </div>
+      </div>
+      <div class="day-totals"><span>Total:</span> <span class="val">~1,410 kcal</span> <span>·</span> <span class="val">~172g P</span> <span>·</span> <span class="val">~62g F</span> <span>·</span> <span class="val">~10g C</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- WEEK 3-4 -->
+<div class="meal-detail" id="meal-week-3">
+  <div class="meal-detail-inner">
+    <div class="week-title">WEEKS 3–4 / ROTATION A</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Same structure, different proteins to prevent food fatigue. Targets identical.</div>
+    <div class="meals-row">
+      <div class="meal-card">
+        <div class="meal-time">Breakfast — Small (any day)</div>
+        <div class="meal-name">3 Eggs + 100g Sardines in Brine</div>
+        <div class="meal-items">3 scrambled eggs<br>100g sardines (drained)<br>5g butter</div>
+        <div class="meal-macros"><span class="kcal">~350 kcal</span><span class="prot">38g protein</span></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Lunch Option A</div>
+        <div class="meal-name">250g Beef Mince Patties + Yoghurt</div>
+        <div class="meal-items">250g 5% beef mince (shaped into patties)<br>200g Greek yoghurt<br>2 eggs on top<br>Spinach side</div>
+        <div class="meal-macros"><span class="kcal">~750 kcal</span><span class="prot">95g protein</span></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Dinner Option A</div>
+        <div class="meal-name">150g Mackerel + Courgette</div>
+        <div class="meal-items">150g mackerel fillet<br>200g courgette grilled<br>5g olive oil<br>Herbs</div>
+        <div class="meal-macros"><span class="kcal">~420 kcal</span><span class="prot">28g protein</span></div>
+      </div>
+    </div>
+    <div class="meals-row" style="margin-top:2px">
+      <div class="meal-card">
+        <div class="meal-time">Breakfast Alt</div>
+        <div class="meal-name">4 Egg Omelette + 3 Bacon</div>
+        <div class="meal-items">4 eggs<br>3 bacon rashers<br>5g butter</div>
+        <div class="meal-macros"><span class="kcal">~420 kcal</span><span class="prot">38g protein</span></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Lunch Option B</div>
+        <div class="meal-name">300g Chicken Thigh + 2 Eggs + Yoghurt</div>
+        <div class="meal-items">300g chicken thigh (skin off, grilled)<br>2 fried eggs<br>200g Greek yoghurt<br>Rocket</div>
+        <div class="meal-macros"><span class="kcal">~700 kcal</span><span class="prot">90g protein</span></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Dinner Option B</div>
+        <div class="meal-name">200g Cod + Broccoli</div>
+        <div class="meal-items">200g cod fillet (baked)<br>150g broccoli<br>5g butter</div>
+        <div class="meal-macros"><span class="kcal">~280 kcal</span><span class="prot">38g protein</span></div>
+      </div>
+    </div>
+    <div class="day-totals" style="margin-top:2px"><span>Avg daily:</span> <span class="val">~1,450–1,520 kcal</span> <span>·</span> <span class="val">~165–180g P</span> <span>·</span> <span class="val">~65–75g F</span> <span>·</span> <span class="val">~10–15g C</span></div>
+  </div>
+</div>
+
+<!-- WEEK 5-6 -->
+<div class="meal-detail" id="meal-week-5">
+  <div class="meal-detail-inner">
+    <div class="week-title">WEEKS 5–6 / ROTATION B</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">New proteins introduced. Lamb, turkey, tuna. Same structure.</div>
+    <div class="meals-row">
+      <div class="meal-card">
+        <div class="meal-time">Breakfast — Small</div>
+        <div class="meal-name">3 Eggs + Turkey Rashers</div>
+        <div class="meal-items">3 eggs<br>3 turkey rashers<br>5g butter</div>
+        <div class="meal-macros"><span class="kcal">~280 kcal</span><span class="prot">32g protein</span></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Lunch Option A</div>
+        <div class="meal-name">250g Lamb Chops + Eggs + Yoghurt</div>
+        <div class="meal-items">250g lamb chops (grilled)<br>2 eggs<br>200g Greek yoghurt<br>Spinach</div>
+        <div class="meal-macros"><span class="kcal">~800 kcal</span><span class="prot">85g protein</span></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Dinner Option A</div>
+        <div class="meal-name">200g Tuna Steak + Asparagus</div>
+        <div class="meal-items">200g tuna steak<br>150g asparagus<br>5g olive oil</div>
+        <div class="meal-macros"><span class="kcal">~360 kcal</span><span class="prot">42g protein</span></div>
+      </div>
+    </div>
+    <div class="meals-row" style="margin-top:2px">
+      <div class="meal-card">
+        <div class="meal-time">Breakfast Alt</div>
+        <div class="meal-name">4 Egg Omelette + 100g Smoked Salmon</div>
+        <div class="meal-items">4 eggs<br>100g smoked salmon<br>5g butter</div>
+        <div class="meal-macros"><span class="kcal">~420 kcal</span><span class="prot">48g protein</span></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Lunch Option B</div>
+        <div class="meal-name">300g Turkey Mince Patties + Yoghurt</div>
+        <div class="meal-items">300g turkey mince<br>200g Greek yoghurt<br>2 eggs<br>Herbs, garlic</div>
+        <div class="meal-macros"><span class="kcal">~680 kcal</span><span class="prot">98g protein</span></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Dinner Option B</div>
+        <div class="meal-name">200g Salmon + Spinach</div>
+        <div class="meal-items">200g salmon<br>200g wilted spinach<br>5g butter, garlic</div>
+        <div class="meal-macros"><span class="kcal">~440 kcal</span><span class="prot">42g protein</span></div>
+      </div>
+    </div>
+    <div class="day-totals" style="margin-top:2px"><span>Avg daily:</span> <span class="val">~1,440–1,540 kcal</span> <span>·</span> <span class="val">~165–188g P</span> <span>·</span> <span class="val">~65–75g F</span> <span>·</span> <span class="val">~8–12g C</span></div>
+  </div>
+</div>
+
+<!-- WEEK 7-8 -->
+<div class="meal-detail" id="meal-week-7">
+  <div class="meal-detail-inner">
+    <div class="week-title">WEEKS 7–8 / WATERCUT PREP</div>
+    <div style="font-size:12px;color:var(--accent2);margin-bottom:16px;">⚠ Drop sodium. No dairy from Day 4 of W8. Lean proteins only. No processed meats.</div>
+    <div class="meals-row">
+      <div class="meal-card">
+        <div class="meal-time">Breakfast — W7 (Small)</div>
+        <div class="meal-name">3 Eggs + 100g Chicken Breast</div>
+        <div class="meal-items">3 eggs<br>100g chicken (no salt seasoning)<br>5g butter</div>
+        <div class="meal-macros"><span class="kcal">~350 kcal</span><span class="prot">40g protein</span></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Lunch — W7</div>
+        <div class="meal-name">300g Chicken Breast + Yoghurt + Eggs</div>
+        <div class="meal-items">300g chicken breast<br>200g Greek yoghurt<br>2 boiled eggs<br>Spinach</div>
+        <div class="meal-macros"><span class="kcal">~720 kcal</span><span class="prot">95g protein</span></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Dinner — W7</div>
+        <div class="meal-name">200g White Fish + Broccoli</div>
+        <div class="meal-items">200g cod or haddock<br>150g broccoli (steamed)<br>5g olive oil, no salt</div>
+        <div class="meal-macros"><span class="kcal">~300 kcal</span><span class="prot">38g protein</span></div>
+      </div>
+    </div>
+    <div class="meals-row" style="margin-top:2px">
+      <div class="meal-card" style="border-top:2px solid var(--accent2)">
+        <div class="meal-time">Breakfast — W8 Day 1–3 (Small)</div>
+        <div class="meal-name">4 Egg Whites + 1 Whole Egg</div>
+        <div class="meal-items">4 egg whites<br>1 whole egg<br>No salt<br>5g butter</div>
+        <div class="meal-macros"><span class="kcal">~180 kcal</span><span class="prot">22g protein</span></div>
+      </div>
+      <div class="meal-card" style="border-top:2px solid var(--accent2)">
+        <div class="meal-time">Lunch — W8 Day 1–3</div>
+        <div class="meal-name">350g Chicken Breast (No Salt) + Spinach</div>
+        <div class="meal-items">350g plain chicken breast<br>200g spinach<br>5g olive oil<br>No sodium, no dairy</div>
+        <div class="meal-macros"><span class="kcal">~620 kcal</span><span class="prot">80g protein</span></div>
+      </div>
+      <div class="meal-card" style="border-top:2px solid var(--accent2)">
+        <div class="meal-time">Dinner — W8 Day 1–3</div>
+        <div class="meal-name">200g White Fish + Asparagus</div>
+        <div class="meal-items">200g cod/haddock<br>200g asparagus<br>No salt, no oil<br>Lemon only</div>
+        <div class="meal-macros"><span class="kcal">~250 kcal</span><span class="prot">40g protein</span></div>
+      </div>
+    </div>
+    <div class="day-totals" style="margin-top:2px;border-left-color:var(--accent2)"><span>W8 Day 1–3 total:</span> <span class="val">~1,050 kcal</span> <span>·</span> <span class="val">~142g P</span> <span>·</span> <span class="val">~25g F</span> <span>·</span> <span class="val">~5g C — Deficit maximised</span></div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- TRAINING -->
+
+  <div id="training" class="section">
+    <p class="section-label">Weekly Training Structure</p>
+
+```
+<div class="treadmill-rule">
+  <div class="icon">🔴</div>
+  <div class="rule-text">
+    <strong>NON-NEGOTIABLE TREADMILL RULE</strong>
+    If BJJ is cancelled, missed, or weights session fails for any reason —
+    45 minutes on the treadmill (Zone 2, 6–7 km/h incline walk) is mandatory that same day.
+    No exceptions. No rest days without treadmill if a session was missed.
+  </div>
+</div>
+
+<p class="section-label">Typical Week Layout</p>
+<div class="training-grid">
+  <div class="training-day">
+    <div class="day-name">Monday</div>
+    <div class="session weights">Weights<div class="session-detail">30 min</div></div>
+    <div class="session treadmill mandatory">Treadmill<div class="session-detail">45 min Zone 2</div></div>
+  </div>
+  <div class="training-day">
+    <div class="day-name">Tuesday</div>
+    <div class="session bjj">BJJ<div class="session-detail">1–2h</div></div>
+    <div class="session treadmill" style="opacity:0.5;font-size:10px;padding:4px 8px;">Optional treadmill if energy allows</div>
+  </div>
+  <div class="training-day">
+    <div class="day-name">Wednesday</div>
+    <div class="session weights">Weights<div class="session-detail">30 min</div></div>
+    <div class="session treadmill mandatory">Treadmill<div class="session-detail">45 min Zone 2</div></div>
+  </div>
+  <div class="training-day">
+    <div class="day-name">Thursday</div>
+    <div class="session bjj">BJJ<div class="session-detail">1–2h</div></div>
+    <div class="session treadmill" style="opacity:0.5;font-size:10px;padding:4px 8px;">Optional treadmill if energy allows</div>
+  </div>
+  <div class="training-day">
+    <div class="day-name">Friday</div>
+    <div class="session weights">Weights<div class="session-detail">30 min</div></div>
+    <div class="session treadmill mandatory">Treadmill<div class="session-detail">45 min Zone 2</div></div>
+  </div>
+  <div class="training-day">
+    <div class="day-name">Saturday</div>
+    <div class="session bjj">BJJ<div class="session-detail">1–2h</div></div>
+    <div class="session treadmill mandatory">Treadmill<div class="session-detail">45 min mandatory</div></div>
+  </div>
+  <div class="training-day">
+    <div class="day-name">Sunday</div>
+    <div class="session treadmill mandatory">Treadmill<div class="session-detail">45 min — always</div></div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.4;">Rest day. No weights, no BJJ. Treadmill is the minimum.</div>
+  </div>
+</div>
+
+<div style="background:var(--surface);padding:20px 24px;margin-top:2px">
+  <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">If a session is missed — Failsafe Protocol</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px">
+    <div style="background:var(--bg);padding:16px">
+      <div style="font-size:11px;color:var(--accent2);font-family:'DM Mono',monospace;margin-bottom:6px">BJJ CANCELLED</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">45 min treadmill replaces the session. Same day. No postponing to tomorrow.</div>
+    </div>
+    <div style="background:var(--bg);padding:16px">
+      <div style="font-size:11px;color:var(--accent2);font-family:'DM Mono',monospace;margin-bottom:6px">WEIGHTS SKIPPED</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">45 min treadmill minimum. If you skipped weights, you didn't skip cardio. No exceptions.</div>
+    </div>
+    <div style="background:var(--bg);padding:16px">
+      <div style="font-size:11px;color:var(--accent2);font-family:'DM Mono',monospace;margin-bottom:6px">FEELING TIRED</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">Treadmill still happens. Zone 2 is restorative, not taxing. Walk at 6 km/h if needed.</div>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- WATERCUT -->
+
+  <div id="watercut" class="section">
+    <p class="section-label">Week 8 — Watercut Protocol (80kg → 77kg)</p>
+    <span class="phase-badge watercut-badge">Target: -3kg in 7 days via water/sodium manipulation</span>
+
+```
+<div class="watercut-timeline">
+  <div class="wc-day safe">
+    <div class="wc-label">Day –7</div>
+    <div class="wc-water">6L</div>
+    <div class="wc-unit">water/day</div>
+    <div class="wc-notes">High water begins. Normal low-sodium food. No dairy. Training normal.</div>
+  </div>
+  <div class="wc-day safe">
+    <div class="wc-label">Day –6</div>
+    <div class="wc-water">6L</div>
+    <div class="wc-unit">water/day</div>
+    <div class="wc-notes">Keep water high. Zero added sodium. Lean proteins only.</div>
+  </div>
+  <div class="wc-day safe">
+    <div class="wc-label">Day –5</div>
+    <div class="wc-water">7L</div>
+    <div class="wc-unit">water/day</div>
+    <div class="wc-notes">Peak water day. Body starts downregulating ADH. No fruit, no yoghurt.</div>
+  </div>
+  <div class="wc-day warning">
+    <div class="wc-label">Day –4</div>
+    <div class="wc-water">4L</div>
+    <div class="wc-unit">water/day</div>
+    <div class="wc-notes">Begin dropping water. Sodium still zero. Light training only or treadmill walk.</div>
+  </div>
+  <div class="wc-day warning">
+    <div class="wc-label">Day –3</div>
+    <div class="wc-water">2L</div>
+    <div class="wc-unit">water/day</div>
+    <div class="wc-notes">Significant water restriction. Egg whites + white fish only. No weights.</div>
+  </div>
+  <div class="wc-day danger">
+    <div class="wc-label">Day –2</div>
+    <div class="wc-water">1L</div>
+    <div class="wc-unit">water/day</div>
+    <div class="wc-notes">Very restricted. Sip only. No solid food after 6pm. Rest only.</div>
+  </div>
+  <div class="wc-day danger">
+    <div class="wc-label">Day –1</div>
+    <div class="wc-water">0.5L</div>
+    <div class="wc-unit">water/day</div>
+    <div class="wc-notes">Weigh-in day or day before. Sips only. Weigh in. Then begin rehydration immediately.</div>
+  </div>
+</div>
+
+<div style="background:var(--surface);padding:24px;margin-top:2px">
+  <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Post Weigh-In Rehydration — Critical for Performance</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px">
+    <div style="background:var(--bg);padding:16px">
+      <div style="font-size:11px;color:var(--protein);font-family:'DM Mono',monospace;margin-bottom:6px">HOUR 0–2</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">500ml electrolyte water immediately. Banana. 200g Greek yoghurt. Small amount of rice if available.</div>
+    </div>
+    <div style="background:var(--bg);padding:16px">
+      <div style="font-size:11px;color:var(--protein);font-family:'DM Mono',monospace;margin-bottom:6px">HOUR 2–4</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">Continue sipping 1L water. Steak + rice meal. Moderate sodium back. Body rehydrates fast.</div>
+    </div>
+    <div style="background:var(--bg);padding:16px">
+      <div style="font-size:11px;color:var(--protein);font-family:'DM Mono',monospace;margin-bottom:6px">4H → COMPETE</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">You should be back to near full performance. Light carbs 30 min before. Stay hydrated throughout.</div>
+    </div>
+  </div>
+</div>
+
+<div style="background:rgba(255,77,0,0.05);border:1px solid rgba(255,77,0,0.2);padding:16px 20px;margin-top:16px;font-size:12px;color:var(--muted);line-height:1.6">
+  ⚠ <strong style="color:var(--text)">Important:</strong> This watercut assumes you hit 80kg going into Week 8. If you're at 82kg, the cut is riskier and we adjust. Check in with your weight every Monday morning and report it.
+</div>
+```
+
+  </div>
+
+  <!-- RULES -->
+
+  <div id="rules" class="section">
+    <p class="section-label">Non-Negotiable Rules — All 8 Weeks</p>
+    <div class="rules-list">
+      <div class="rule-item">
+        <div class="rule-num">01</div>
+        <div>
+          <div class="rule-title">Weigh every morning, same conditions</div>
+          <div class="rule-desc">After toilet, before eating or drinking. Log it. Use a 7-day rolling average — don't panic at single day fluctuations.</div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">02</div>
+        <div>
+          <div class="rule-title">Treadmill is the floor, not the ceiling</div>
+          <div class="rule-desc">45 min every day if a session is missed. If all sessions happen, treadmill on top. Sunday always has treadmill regardless.</div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">03</div>
+        <div>
+          <div class="rule-title">Weigh your protein sources</div>
+          <div class="rule-desc">Big portions are your stated saboteur. 250g steak is not "a steak". Weigh it for the first 3 weeks until your eye is calibrated.</div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">04</div>
+        <div>
+          <div class="rule-title">Track in MyFitnessPal daily</div>
+          <div class="rule-desc">Log cooking oils, butter, every gram. Hidden calories in butter and olive oil are where deficits disappear.</div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">05</div>
+        <div>
+          <div class="rule-title">3L water minimum every day</div>
+          <div class="rule-desc">You already do this — maintain it. Increase to 4L on training days. Water supports fat metabolism and hunger suppression.</div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">06</div>
+        <div>
+          <div class="rule-title">Weekends are not off days</div>
+          <div class="rule-desc">You've flagged weekends as your weak point. Social eating is fine — order steak, skip the chips. One bad meal won't kill a cut; one bad weekend will.</div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">07</div>
+        <div>
+          <div class="rule-title">No yoghurt, fruit or dairy in W8</div>
+          <div class="rule-desc">From Day 4 of Week 8: dairy out, fruit out. Every gram of carbohydrate holds water. You're preparing to watercut — keep it clinical.</div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">08</div>
+        <div>
+          <div class="rule-title">Check in if stall hits at Week 4</div>
+          <div class="rule-desc">If weight doesn't move for 7+ days at Week 4, report it before making changes. Likely water retention or tracking gaps — not a metabolic issue yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAILY MENU -->
+
+  <div id="dailymenu" class="section">
+    <p class="section-label">Daily Menu — Full Day View with Timing</p>
+    <div class="menu-selector">
+      <button class="menu-day-btn active" onclick="showMenuDay('mon')">Monday</button>
+      <button class="menu-day-btn" onclick="showMenuDay('tue')">Tuesday</button>
+      <button class="menu-day-btn" onclick="showMenuDay('wed')">Wednesday</button>
+      <button class="menu-day-btn" onclick="showMenuDay('thu')">Thursday</button>
+      <button class="menu-day-btn" onclick="showMenuDay('fri')">Friday</button>
+      <button class="menu-day-btn" onclick="showMenuDay('sat')">Saturday</button>
+      <button class="menu-day-btn" onclick="showMenuDay('sun')">Sunday</button>
+    </div>
+
+```
+<!-- MONDAY — Weights + Treadmill -->
+<div id="menu-mon" class="menu-day active">
+  <span class="training-badge weights-b">⚡ Weights 30min</span>
+  <span class="training-badge treadmill-b">🔴 Treadmill 45min</span>
+  <div class="menu-timeline">
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">07:00</div><div class="time-label">Wake up</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Black Coffee + Water</div>
+        <div class="food-items">250ml black coffee (no milk, no sugar)<br>500ml water on waking</div>
+        <div class="food-prep">→ Drink immediately on waking. Start the fast.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">5</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">0g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">0g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-separator">Morning fast continues — drink water</div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">12:30</div><div class="time-label">Breakfast</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">3 Scrambled Eggs + 2 Bacon Rashers</div>
+        <div class="food-items">3 whole eggs<br>2 back bacon rashers (unsmoked)<br>5g butter<br>Black pepper</div>
+        <div class="food-prep">→ Scramble eggs in butter on low heat. Crisp bacon separately. Eat slowly — this breaks the fast.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">300</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">30g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">22g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">1g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-separator">Training window</div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">13:30</div><div class="time-label">Weights</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Weights Session — 30 min</div>
+        <div class="food-items">Compound lifts. Keep intensity high.<br>500ml water during session.</div>
+        <div class="food-prep">→ No pre-workout food needed. Breakfast timing covers this.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">burn est.</span><span class="macro-val">~200</span></div>
+        <div class="macro-pill prot"><span class="macro-name">water</span><span class="macro-val">500ml</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">14:15</div><div class="time-label">Treadmill</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Treadmill — 45 min Zone 2</div>
+        <div class="food-items">6–7 km/h, incline 3–5%<br>Heart rate 120–140 bpm<br>500ml water during</div>
+        <div class="food-prep">→ Zone 2 burns fat without spiking cortisol. Do not go harder than conversational pace.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">burn est.</span><span class="macro-val">~280</span></div>
+        <div class="macro-pill prot"><span class="macro-name">water</span><span class="macro-val">500ml</span></div>
+      </div>
+    </div>
+
+    <div class="menu-separator">Post-training lunch — main meal of the day</div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">15:30</div><div class="time-label">Lunch</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">250g Sirloin Steak + 2 Fried Eggs + Greek Yoghurt</div>
+        <div class="food-items">250g sirloin (weighed raw)<br>2 whole eggs fried in 5g butter<br>200g full-fat Greek yoghurt (Total 5%)<br>Handful rocket or spinach — unlimited</div>
+        <div class="food-prep">→ Sear steak on high heat 2–3 min each side for medium. Eat the yoghurt as a separate course after the main plate to extend the meal and reduce hunger later.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">750</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">90g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">40g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">8g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-separator">Afternoon — stay hydrated, no snacking</div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">19:30</div><div class="time-label">Dinner</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">200g Salmon + Steamed Broccoli</div>
+        <div class="food-items">200g salmon fillet (skin on)<br>150g broccoli, steamed<br>5g olive oil drizzled over<br>Salt, black pepper, lemon juice</div>
+        <div class="food-prep">→ Pan-fry salmon skin-down 4 min, flip 2 min. Broccoli steamed separately. Keep it simple and light — you don't need a large dinner.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">450</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">42g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">28g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">5g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">21:00</div><div class="time-label">Evening</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Herbal tea or sparkling water</div>
+        <div class="food-items">Chamomile or peppermint tea (no sugar)<br>OR sparkling water with lemon<br>Kitchen closes here.</div>
+        <div class="food-prep">→ No food after this point. Fast begins for tomorrow.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">0–5</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="menu-daily-total">
+    <div class="total-label">Monday Total</div>
+    <div class="total-item"><span class="t-val" style="color:var(--accent2)">~1,505</span><span class="t-label">kcal</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--protein)">162g</span><span class="t-label">protein</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--fat)">90g</span><span class="t-label">fat</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--carb)">14g</span><span class="t-label">carbs</span></div>
+    <div class="total-item"><span class="t-val">~480</span><span class="t-label">kcal burned training</span></div>
+  </div>
+</div>
+
+<!-- TUESDAY — BJJ -->
+<div id="menu-tue" class="menu-day">
+  <span class="training-badge bjj-b">🥋 BJJ 1–2h</span>
+  <div class="menu-timeline">
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">07:00</div><div class="time-label">Wake up</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Black Coffee + Water</div>
+        <div class="food-items">250ml black coffee<br>500ml water</div>
+        <div class="food-prep">→ Same morning protocol every day without exception.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">5</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">12:00</div><div class="time-label">Breakfast</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">3 Boiled Eggs + 2 Bacon Rashers</div>
+        <div class="food-items">3 boiled eggs (7 min, hard)<br>2 bacon rashers<br>Black coffee if needed</div>
+        <div class="food-prep">→ Boil batch for the week on Sunday. Grab and eat in under 5 minutes.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">280</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">28g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">20g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">1g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">13:30</div><div class="time-label">Lunch</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">300g Chicken Breast + 2 Fried Eggs + Greek Yoghurt</div>
+        <div class="food-items">300g chicken breast (grilled or oven-baked)<br>2 eggs fried in 5g butter<br>200g Greek yoghurt<br>Rocket salad — unlimited</div>
+        <div class="food-prep">→ Batch cook chicken breast. 200°C oven, 22 min. Season with salt, garlic powder, paprika only.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">720</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">95g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">30g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">10g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-separator">Pre-BJJ — light digestion window</div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">18:00</div><div class="time-label">BJJ</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">BJJ Session — 1 to 2h</div>
+        <div class="food-items">High intensity. Drilling + rolling.<br>750ml–1L water during session.<br>No food 2h before.</div>
+        <div class="food-prep">→ Eat lunch by 15:00 at latest if BJJ is at 18:00. Never train on a full stomach.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">burn est.</span><span class="macro-val">~600</span></div>
+        <div class="macro-pill prot"><span class="macro-name">water</span><span class="macro-val">1L</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">20:00</div><div class="time-label">Dinner</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">150g Tuna Steak + Courgette</div>
+        <div class="food-items">150g tuna steak (pan-seared)<br>200g courgette sliced and grilled<br>5g olive oil<br>Lemon juice, dried herbs</div>
+        <div class="food-prep">→ Post-BJJ dinner. High protein, low fat. Tuna sears in 90 seconds each side. Quick and easy after a hard session.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">300</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">38g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">10g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">8g</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="menu-daily-total">
+    <div class="total-label">Tuesday Total</div>
+    <div class="total-item"><span class="t-val" style="color:var(--accent2)">~1,305</span><span class="t-label">kcal</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--protein)">161g</span><span class="t-label">protein</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--fat)">60g</span><span class="t-label">fat</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--carb)">19g</span><span class="t-label">carbs</span></div>
+    <div class="total-item"><span class="t-val">~600</span><span class="t-label">kcal burned BJJ</span></div>
+  </div>
+</div>
+
+<!-- WEDNESDAY — Weights + Treadmill -->
+<div id="menu-wed" class="menu-day">
+  <span class="training-badge weights-b">⚡ Weights 30min</span>
+  <span class="training-badge treadmill-b">🔴 Treadmill 45min</span>
+  <div class="menu-timeline">
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">07:00</div><div class="time-label">Wake up</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Black Coffee + Water</div>
+        <div class="food-items">250ml black coffee<br>500ml water</div>
+        <div class="food-prep">→ Non-negotiable morning protocol.</div>
+      </div>
+      <div class="menu-macro-col"><div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">5</span></div></div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">12:30</div><div class="time-label">Breakfast</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">4 Egg Omelette with Bacon</div>
+        <div class="food-items">4 whole eggs<br>2 bacon rashers chopped into omelette<br>5g butter<br>Salt, black pepper</div>
+        <div class="food-prep">→ Fold omelette in half, medium heat. Do not overcook. 3 minutes total.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">350</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">34g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">26g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">1g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">13:30</div><div class="time-label">Weights</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Weights + Treadmill</div>
+        <div class="food-items">30 min weights<br>45 min treadmill Zone 2 immediately after<br>1L water total</div>
+        <div class="food-prep">→ Do weights first, treadmill second. Never reversed — you want full strength for lifting.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">burn est.</span><span class="macro-val">~480</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">15:30</div><div class="time-label">Lunch</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">250g Ribeye + Greek Yoghurt + Spinach</div>
+        <div class="food-items">250g ribeye steak (sear in own fat, no added oil)<br>200g Greek yoghurt<br>Large handful spinach (raw, as side)<br>Salt, black pepper</div>
+        <div class="food-prep">→ Ribeye has enough intramuscular fat — no butter needed. Sear on screaming hot pan, 2–3 min per side. Rest 3 min before cutting.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">800</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">88g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">48g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">9g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">19:30</div><div class="time-label">Dinner</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">200g Cod + Asparagus</div>
+        <div class="food-items">200g cod fillet (baked)<br>150g asparagus (oven-roasted)<br>5g butter<br>Lemon juice, salt</div>
+        <div class="food-prep">→ Bake cod at 200°C for 12 min. Asparagus in same tray, 10 min. One pan, minimal washing up.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">280</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">38g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">8g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">5g</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="menu-daily-total">
+    <div class="total-label">Wednesday Total</div>
+    <div class="total-item"><span class="t-val" style="color:var(--accent2)">~1,435</span><span class="t-label">kcal</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--protein)">160g</span><span class="t-label">protein</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--fat)">82g</span><span class="t-label">fat</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--carb)">15g</span><span class="t-label">carbs</span></div>
+    <div class="total-item"><span class="t-val">~480</span><span class="t-label">kcal burned training</span></div>
+  </div>
+</div>
+
+<!-- THURSDAY — BJJ -->
+<div id="menu-thu" class="menu-day">
+  <span class="training-badge bjj-b">🥋 BJJ 1–2h</span>
+  <div class="menu-timeline">
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">07:00</div><div class="time-label">Wake up</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Black Coffee + Water</div>
+        <div class="food-items">250ml black coffee<br>500ml water</div>
+        <div class="food-prep">→ Morning routine. Every day, same protocol.</div>
+      </div>
+      <div class="menu-macro-col"><div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">5</span></div></div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">12:00</div><div class="time-label">Breakfast</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">3 Eggs + 100g Smoked Salmon</div>
+        <div class="food-items">3 eggs (scrambled or fried)<br>100g smoked salmon on the side<br>5g butter<br>Black pepper, lemon</div>
+        <div class="food-prep">→ High omega-3 breakfast. Good for joint recovery and inflammation from BJJ.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">380</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">42g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">26g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">1g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">13:30</div><div class="time-label">Lunch</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">300g Chicken Thighs + 2 Eggs + Yoghurt</div>
+        <div class="food-items">300g chicken thighs (skin off, oven-roasted)<br>2 fried eggs<br>200g Greek yoghurt<br>Rocket salad</div>
+        <div class="food-prep">→ Thighs at 200°C, 25 min. More flavour than breast, slightly more fat — account for it. Skin off keeps it leaner.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">700</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">85g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">38g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">10g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-separator">BJJ evening session</div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">18:00</div><div class="time-label">BJJ</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">BJJ Session — 1 to 2h</div>
+        <div class="food-items">Drilling, sparring, rolling.<br>1L water during.</div>
+        <div class="food-prep">→ Lunch must be eaten minimum 2h before. Aim for 15:00 lunch max if BJJ is at 18:00.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">burn est.</span><span class="macro-val">~600</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">20:15</div><div class="time-label">Dinner</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">150g Salmon + Wilted Spinach</div>
+        <div class="food-items">150g salmon fillet<br>200g spinach (wilted in pan with garlic)<br>5g butter<br>Salt, garlic</div>
+        <div class="food-prep">→ Pan-fry salmon, use same pan to wilt spinach in leftover fat. Done in 8 minutes. Eat within 30 min of finishing BJJ.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">350</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">35g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">22g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">4g</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="menu-daily-total">
+    <div class="total-label">Thursday Total</div>
+    <div class="total-item"><span class="t-val" style="color:var(--accent2)">~1,435</span><span class="t-label">kcal</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--protein)">162g</span><span class="t-label">protein</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--fat)">86g</span><span class="t-label">fat</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--carb)">15g</span><span class="t-label">carbs</span></div>
+    <div class="total-item"><span class="t-val">~600</span><span class="t-label">kcal burned BJJ</span></div>
+  </div>
+</div>
+
+<!-- FRIDAY — Weights + Treadmill -->
+<div id="menu-fri" class="menu-day">
+  <span class="training-badge weights-b">⚡ Weights 30min</span>
+  <span class="training-badge treadmill-b">🔴 Treadmill 45min</span>
+  <div class="menu-timeline">
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">07:00</div><div class="time-label">Wake up</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Black Coffee + Water</div>
+        <div class="food-items">250ml black coffee<br>500ml water</div>
+        <div class="food-prep">→ End of the week. Do not let Friday slip — weekends start with Friday discipline.</div>
+      </div>
+      <div class="menu-macro-col"><div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">5</span></div></div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">12:30</div><div class="time-label">Breakfast</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">3 Scrambled Eggs + 2 Bacon</div>
+        <div class="food-items">3 eggs<br>2 bacon rashers<br>5g butter</div>
+        <div class="food-prep">→ Same as Monday breakfast. Consistent, fast, reliable.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">300</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">30g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">22g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">1g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">13:30</div><div class="time-label">Training</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Weights 30min + Treadmill 45min</div>
+        <div class="food-items">Weights first. Treadmill immediately after.<br>1L water total.</div>
+        <div class="food-prep">→ Last training block of the week. Push it. Friday is when results are locked in.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">burn est.</span><span class="macro-val">~480</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">15:30</div><div class="time-label">Lunch</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">250g Sirloin + 2 Eggs + Yoghurt</div>
+        <div class="food-items">250g sirloin steak<br>2 fried eggs<br>200g Greek yoghurt<br>Spinach</div>
+        <div class="food-prep">→ Post-training window. Get this meal in within 1h of finishing treadmill.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">750</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">90g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">40g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">8g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">19:30</div><div class="time-label">Dinner</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">200g Sea Bass + Broccoli</div>
+        <div class="food-items">200g sea bass fillet<br>150g broccoli (steamed)<br>5g olive oil<br>Lemon, salt</div>
+        <div class="food-prep">→ Sea bass pan-fries in 3 min per side. Light, tasty, zero carbs. Good end to the week.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">350</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">38g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">18g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">5g</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="menu-daily-total">
+    <div class="total-label">Friday Total</div>
+    <div class="total-item"><span class="t-val" style="color:var(--accent2)">~1,405</span><span class="t-label">kcal</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--protein)">158g</span><span class="t-label">protein</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--fat)">80g</span><span class="t-label">fat</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--carb)">14g</span><span class="t-label">carbs</span></div>
+    <div class="total-item"><span class="t-val">~480</span><span class="t-label">kcal burned training</span></div>
+  </div>
+</div>
+
+<!-- SATURDAY — BJJ + Treadmill -->
+<div id="menu-sat" class="menu-day">
+  <span class="training-badge bjj-b">🥋 BJJ 1–2h</span>
+  <span class="training-badge treadmill-b">🔴 Treadmill 45min mandatory</span>
+  <div class="menu-timeline">
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">08:00</div><div class="time-label">Wake up</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Black Coffee + Water</div>
+        <div class="food-items">250ml black coffee<br>500ml water</div>
+        <div class="food-prep">→ Weekend. Same protocol. No exceptions because it's Saturday.</div>
+      </div>
+      <div class="menu-macro-col"><div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">5</span></div></div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">12:00</div><div class="time-label">Breakfast</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">4 Egg Omelette + 100g Smoked Salmon</div>
+        <div class="food-items">4 eggs<br>100g smoked salmon folded in<br>5g butter<br>Black pepper, lemon</div>
+        <div class="food-prep">→ Bigger breakfast on Saturday — longer day, BJJ coming. Still within targets.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">420</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">48g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">28g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">1g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">14:00</div><div class="time-label">Lunch</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">300g Ribeye + Yoghurt + 2 Boiled Eggs</div>
+        <div class="food-items">300g ribeye<br>200g Greek yoghurt<br>2 boiled eggs<br>Salt, rosemary</div>
+        <div class="food-prep">→ Biggest meal of the week. You're heading into BJJ. Eat by 14:00 max if session is at 16:00+. Don't skip yoghurt — it's protein, not a cheat.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">900</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">100g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">52g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">10g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">16:30</div><div class="time-label">BJJ</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">BJJ + Treadmill Back to Back</div>
+        <div class="food-items">BJJ: 1–2h<br>Treadmill: 45 min Zone 2 immediately after (mandatory)<br>Total water: 1.5L</div>
+        <div class="food-prep">→ Saturday is your highest output day. Treadmill after BJJ is mandatory — this is where the most calories get burned in the week.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">burn est.</span><span class="macro-val">~880</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">20:00</div><div class="time-label">Dinner</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">150g Salmon + Courgette</div>
+        <div class="food-items">150g salmon<br>200g courgette sliced and grilled<br>5g olive oil</div>
+        <div class="food-prep">→ Light dinner after a huge training day. If you dine out tonight, order fish and a green salad. Skip sauces. One glass of wine maximum.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">320</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">32g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">18g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">8g</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="menu-daily-total">
+    <div class="total-label">Saturday Total</div>
+    <div class="total-item"><span class="t-val" style="color:var(--accent2)">~1,645</span><span class="t-label">kcal</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--protein)">180g</span><span class="t-label">protein</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--fat)">98g</span><span class="t-label">fat</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--carb)">19g</span><span class="t-label">carbs</span></div>
+    <div class="total-item"><span class="t-val">~880</span><span class="t-label">kcal burned training</span></div>
+  </div>
+</div>
+
+<!-- SUNDAY — Rest + Treadmill only -->
+<div id="menu-sun" class="menu-day">
+  <span class="training-badge rest-b">Rest day</span>
+  <span class="training-badge treadmill-b">🔴 Treadmill 45min — always</span>
+  <div class="menu-timeline">
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">08:30</div><div class="time-label">Wake up</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Black Coffee + Water</div>
+        <div class="food-items">250ml black coffee<br>500ml water<br>Morning weigh-in today — log it.</div>
+        <div class="food-prep">→ Weigh yourself Sunday morning. This is your weekly checkpoint. Log the number, no emotions about it.</div>
+      </div>
+      <div class="menu-macro-col"><div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">5</span></div></div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">10:00</div><div class="time-label">Treadmill</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">Treadmill — 45 min Zone 2 (fasted)</div>
+        <div class="food-items">6–7 km/h, incline 3%<br>Fasted — before breakfast<br>500ml water</div>
+        <div class="food-prep">→ Fasted Zone 2 on Sunday maximises fat oxidation. You have time, no other sessions to worry about. Do it first thing.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">burn est.</span><span class="macro-val">~280</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">12:30</div><div class="time-label">Breakfast</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">3 Eggs + 100g Smoked Salmon</div>
+        <div class="food-items">3 eggs (any style)<br>100g smoked salmon<br>5g butter<br>Lemon, capers optional</div>
+        <div class="food-prep">→ Relaxed Sunday breakfast. Eat slowly. No rush.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">380</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">42g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">26g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">1g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">14:00</div><div class="time-label">Lunch</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">250g Chicken Breast + 2 Fried Eggs + Yoghurt</div>
+        <div class="food-items">250g chicken breast (grilled)<br>2 fried eggs<br>200g Greek yoghurt<br>Rocket unlimited</div>
+        <div class="food-prep">→ Rest day lunch. Slightly lighter than training days is fine — you're not burning as much. Keep protein high regardless.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">650</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">88g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">30g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">10g</span></div>
+      </div>
+    </div>
+
+    <div class="menu-row">
+      <div class="menu-time-col"><div class="time-val">19:30</div><div class="time-label">Dinner</div></div>
+      <div class="menu-food-col">
+        <div class="food-title">200g Tuna Steak + Asparagus</div>
+        <div class="food-items">200g tuna steak<br>150g asparagus<br>5g olive oil<br>Lemon, salt</div>
+        <div class="food-prep">→ If you dine out Sunday, this is your order: tuna or any grilled fish, asparagus or green salad. Skip bread, skip dessert. Stay on protocol.</div>
+      </div>
+      <div class="menu-macro-col">
+        <div class="macro-pill kcal"><span class="macro-name">kcal</span><span class="macro-val">380</span></div>
+        <div class="macro-pill prot"><span class="macro-name">protein</span><span class="macro-val">42g</span></div>
+        <div class="macro-pill fat-m"><span class="macro-name">fat</span><span class="macro-val">14g</span></div>
+        <div class="macro-pill carb-m"><span class="macro-name">carbs</span><span class="macro-val">6g</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="menu-daily-total">
+    <div class="total-label">Sunday Total</div>
+    <div class="total-item"><span class="t-val" style="color:var(--accent2)">~1,415</span><span class="t-label">kcal</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--protein)">172g</span><span class="t-label">protein</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--fat)">70g</span><span class="t-label">fat</span></div>
+    <div class="total-item"><span class="t-val" style="color:var(--carb)">17g</span><span class="t-label">carbs</span></div>
+    <div class="total-item"><span class="t-val">~280</span><span class="t-label">kcal burned treadmill</span></div>
+  </div>
+</div>
+```
+
+  </div>
+
+</div>
+
+<script>
+function showMenuDay(day) {
+  document.querySelectorAll('.menu-day').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.menu-day-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('menu-' + day).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggleMealWeek(num) {
+  const detail = document.getElementById('meal-week-' + num);
+  const allDetails = document.querySelectorAll('.meal-detail');
+  const allCards = document.querySelectorAll('#meal-weeks .week-card');
+
+  allDetails.forEach(d => {
+    if (d !== detail) d.classList.remove('visible');
+  });
+  allCards.forEach(c => c.classList.remove('active-week'));
+
+  if (detail.classList.contains('visible')) {
+    detail.classList.remove('visible');
+  } else {
+    detail.classList.add('visible');
+    event.currentTarget.classList.add('active-week');
+  }
+}
+
+function showDay(week, day) {
+  const container = event.target.closest('.meal-detail-inner');
+  container.querySelectorAll('.day-content').forEach(d => d.classList.remove('active'));
+  container.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+  const target = document.getElementById(week + '-' + day);
+  if (target) target.classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showMenuDay(day) {
+  document.querySelectorAll('.menu-day').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.menu-day-btn').forEach(b => b.classList.remove('active'));
+  const target = document.getElementById('menu-' + day);
+  if (target) target.classList.add('active');
+  event.target.classList.add('active');
+}
+
+function switchDayMenu(day, btn) {
+  document.querySelectorAll('.day-content[id^="dm-"]').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('#day-selector .day-tab').forEach(b => b.classList.remove('active'));
+  const target = document.getElementById('dm-' + day);
+  if (target) target.classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+
+</body>
+</html>
